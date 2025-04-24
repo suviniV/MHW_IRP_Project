@@ -8,6 +8,7 @@ from scipy.stats import linregress
 from statsmodels.tsa.stattools import ccf
 
 
+# Time Series plot 
 def plot_time_series(ds: xr.Dataset, var: str, figsize=(14, 5)):
     unit = '°C' if var.lower() == 'sst' else 'mgm-3'
     plt.figure(figsize=figsize)
@@ -67,6 +68,7 @@ def compute_daily_anomalies(ds: xr.Dataset, var: str) -> xr.DataArray:
     return anomalies
 
 
+# Anomalies Plot
 def plot_anomalies(anomalies: xr.DataArray, var: str, color: str = 'gray', figsize=(14, 5)):
 
     plt.figure(figsize=figsize)
@@ -79,6 +81,8 @@ def plot_anomalies(anomalies: xr.DataArray, var: str, color: str = 'gray', figsi
     plt.tight_layout()
     plt.show()
 
+
+# Plot of the trend in Anomalies
 def plot_trend_on_anomaly(anom: xr.DataArray, var: str, color: str = 'gray', label: str = '', figsize=(14, 5)):
 
     df = anom.to_dataframe(name='anomaly').dropna().reset_index()
@@ -113,6 +117,7 @@ def plot_trend_on_anomaly(anom: xr.DataArray, var: str, color: str = 'gray', lab
     }
 
 
+# Plot Climatology
 def plot_daily_seasonality(ds: xr.Dataset, var: str, color: str = 'orange', figsize=(12, 5)):
 
     climatology = ds[var].groupby('time.dayofyear').mean('time')
@@ -127,6 +132,8 @@ def plot_daily_seasonality(ds: xr.Dataset, var: str, color: str = 'orange', figs
     
     return climatology
 
+
+# Full data analysis process
 def analyze_timeseries(ds: xr.Dataset, var: str, color: str = 'blue', label: str = None):
 
     if label is None:
@@ -169,6 +176,7 @@ def analyze_sst_chl_correlation(file_path_sst, file_path_chl, max_lag=365, plot_
     time_sst = pd.to_datetime(df_sst['time'].values)
     time_chl = pd.to_datetime(df_chl['time'].values)
 
+    # Obtaining common time range in both dataset Chl-a/SST
     common_time = np.intersect1d(time_sst, time_chl)
     sst_series_pd = pd.Series(sst_series, index=time_sst).loc[common_time]
     chl_series_pd = pd.Series(chl_series, index=time_chl).loc[common_time]

@@ -104,8 +104,9 @@ def scale_and_create_sequences(train_sst, train_chl, train_month,
 
 # LSTM model Build
 def build_lstm_model(n_lag, n_features, n_out):
+
     model = Sequential()
-    model.add(LSTM(50, input_shape=(n_lag, n_features), return_sequences=False)),
+    model.add(LSTM(50, input_shape=(n_lag, n_features))),
     model.add(Dense(n_out, activation='linear'))
     model.compile(loss='mae', optimizer='adam')
     return model
@@ -113,6 +114,7 @@ def build_lstm_model(n_lag, n_features, n_out):
 
 # Train LSTM model with training and validation data.
 def train_lstm_model(model, X_train, y_train, X_valid, y_valid, epochs, batch_size):
+
     history = model.fit(
         X_train, y_train,
         epochs=epochs,
@@ -125,6 +127,7 @@ def train_lstm_model(model, X_train, y_train, X_valid, y_valid, epochs, batch_si
 
 # CNN 1D model Build
 def build_cnn_model(n_lag, n_features, n_out):
+
     model = Sequential()
     model.add(Conv1D(filters=64, kernel_size=2, activation='relu', input_shape=(n_lag, n_features)))
     model.add(MaxPooling1D(pool_size=2))
@@ -137,6 +140,7 @@ def build_cnn_model(n_lag, n_features, n_out):
 
 # Train CNN 1D model with training and validation data.
 def train_cnn_model(model, X_train, y_train, X_valid, y_valid, epochs, batch_size):
+    
     early_stopping = EarlyStopping(
         monitor='val_loss',
         patience=5,                
@@ -149,6 +153,7 @@ def train_cnn_model(model, X_train, y_train, X_valid, y_valid, epochs, batch_siz
         batch_size=batch_size,
         validation_data=(X_valid, y_valid),
         callbacks=[early_stopping],
+        shuffle = True
     )
     return history
 

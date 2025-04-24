@@ -22,7 +22,7 @@ def get_mhw_events(time, sst):
     return mhws, labels
 
 
-# Plot of CHL-a anomaies with SST Anomalies
+# Plot of CHL-a anomalies with SST Anomalies to show the MHW impact
 def plot_mhw_impact_profile(ds, mhw_labels, max_events=50, days_before=200, days_after=200):
     df = pd.DataFrame({
         "time": ds.time.values,
@@ -75,6 +75,7 @@ def plot_mhw_impact_profile(ds, mhw_labels, max_events=50, days_before=200, days
     plt.show()
 
 
+# Detrended anomaly plot
 def plot_detrended_variable(ds, var, label, units, color='blue'):
 
     time = pd.to_datetime(ds.time.values)
@@ -90,7 +91,6 @@ def plot_detrended_variable(ds, var, label, units, color='blue'):
     plt.legend()
     plt.tight_layout()
     plt.show()
-
 
 
 ## Full process upto plotting

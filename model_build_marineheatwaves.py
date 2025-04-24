@@ -1,6 +1,8 @@
 ## Importing Libraries
 import warnings
 warnings.filterwarnings("ignore")
+import os
+import random
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -11,7 +13,13 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv1D, MaxPooling1D, Flatten, LSTM, Dense
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score 
-from tensorflow.keras.optimizers import Adam
+
+
+def set_seeds(seed_value=42):
+    os.environ['PYTHONHASHSEED'] = str(seed_value)
+    random.seed(seed_value)
+    np.random.seed(seed_value)
+    tf.random.set_seed(seed_value)
 
 
 def load_data(file_path):
@@ -91,27 +99,26 @@ def build_lstm_model(n_lag, n_features, n_seq):
     return model
 
 # Train LSTM model with training and validation data.
-def fit_lstm_model(model, X_train, y_train, X_valid, y_valid, epochs, batch_size, shuffle=False):
+def fit_lstm_model(model, X_train, y_train, X_valid, y_valid, epochs, batch_size):
 
     history = model.fit(
         X_train, y_train,
         epochs=epochs,
         batch_size=batch_size,
         validation_data=(X_valid, y_valid),
-        shuffle=shuffle
+        shuffle=False
     )
     return history
 
 # CNN 1D model Build
-def build_cnn_model(n_lag, n_features, n_seq, learning_rate):
+def build_cnn_model(n_lag, n_features, n_seq):
+    
     model = Sequential()
     model.add(Conv1D(filters=64, kernel_size=2, activation='relu', input_shape=(n_lag, n_features)))
     model.add(MaxPooling1D(pool_size=2))
     model.add(Flatten())
     model.add(Dense(n_seq, activation='linear'))
-    optimizer = Adam(learning_rate=learning_rate)
-    model.compile(optimizer=optimizer, loss='mae')
-
+    model.compile(optimizer='adam', loss='mae')
     return model
 
 

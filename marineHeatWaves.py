@@ -12,9 +12,9 @@ from scipy import stats
 import scipy.ndimage as ndimage
 from datetime import date
 
-# Applies the Hobday et al. (2016) marine heat wave definition to an input time series of temp ('temp') along with a time vector ('t')
+# Applies the Hobday et al. (2016) marine heat wave definition to an input time series of SST along with a time vector ('t')
 def detect(t, temp, climatologyPeriod=[None,None], pctile=90, windowHalfWidth=5, smoothPercentile=True, smoothPercentileWidth=31, minDuration=5, joinAcrossGaps=True, maxGap=2, maxPadLength=False, coldSpells=False, alternateClimatology=False, Ly=False):
-
+    # Initialize output dictionary for MHW properties
     mhw = {}
     mhw['time_start'] = [] 
     mhw['time_end'] = [] 
@@ -47,7 +47,7 @@ def detect(t, temp, climatologyPeriod=[None,None], pctile=90, windowHalfWidth=5,
     mhw['rate_decline'] = []
 
 
-    T = len(t)
+    T = len(t) # Extract date related components from input time vector
     year = np.zeros((T))
     month = np.zeros((T))
     day = np.zeros((T))
@@ -72,6 +72,7 @@ def detect(t, temp, climatologyPeriod=[None,None], pctile=90, windowHalfWidth=5,
     feb28 = 59
     feb29 = 60
 
+    # Setting Climatalogy period 
     if (climatologyPeriod[0] is None) or (climatologyPeriod[1] is None):
         climatologyPeriod[0] = year[0]
         climatologyPeriod[1] = year[-1]
@@ -104,6 +105,7 @@ def detect(t, temp, climatologyPeriod=[None,None], pctile=90, windowHalfWidth=5,
         temp = pad(temp, maxPadLength=maxPadLength)
         tempClim = pad(tempClim, maxPadLength=maxPadLength)
 
+    # Compute Climatology Thresholds
     lenClimYear = 366
     clim_start = np.where(yearClim == climatologyPeriod[0])[0][0]
     clim_end = np.where(yearClim == climatologyPeriod[1])[0][-1]
@@ -145,7 +147,7 @@ def detect(t, temp, climatologyPeriod=[None,None], pctile=90, windowHalfWidth=5,
     temp[np.isnan(temp)] = clim['seas'][np.isnan(temp)]
 
     
-    # Find MHWs as exceedances above the threshold
+    # Find MHWs as exceedances above the threshold (90th percentile)
     # Time series of "True" when threshold is exceeded, "False" otherwise
     exceed_bool = temp - clim['thresh']
     exceed_bool[exceed_bool<=0] = False
@@ -219,7 +221,7 @@ def detect(t, temp, climatologyPeriod=[None,None], pctile=90, windowHalfWidth=5,
         mhw['duration_extreme'].append(np.sum(cats >= 4.))
         
         # Rates of onset and decline
-        # Requires getting MHW strength at "start" and "end" of event (continuous: assume start/end half-day before/after first/last point)
+        # Requires getting MHW strength at "start" and "end" of event
         if tt_start > 0:
             mhw_relSeas_start = 0.5*(mhw_relSeas[0] + temp[tt_start-1] - clim['seas'][tt_start-1])
             mhw['rate_onset'].append((mhw_relSeas[tt_peak] - mhw_relSeas_start) / (tt_peak+0.5))
@@ -252,6 +254,7 @@ def detect(t, temp, climatologyPeriod=[None,None], pctile=90, windowHalfWidth=5,
             mhw['intensity_cumulative_abs'][ev] = -1.*mhw['intensity_cumulative_abs'][ev]
 
     return mhw, clim
+
 
 # Time and dates vectors, and calculate block timing
 def blockAverage(t, mhw, clim=None, blockLength=1, removeMissing=False, temp=None):
@@ -471,7 +474,7 @@ def meanTrend(mhwBlock, alpha=0.05):
     # Return mean, trend
     return mean, trend, dtrend
 
-# Calculate the rank and return periods of marine heatwaves (MHWs) according to each metric
+# Calculate the rank and return periods of marine heatwaves according to each metric
 def rank(t, mhw):
 
     rank = {}
@@ -515,6 +518,6 @@ def pad(data, maxPadLength=False):
 
     return data_padded
 
-#     Return input array [1D numpy array] with all nan values removed
+#  Return input array [1D numpy array] with all nan values removed
 def nonans(array):
     return array[~np.isnan(array)]

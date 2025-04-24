@@ -45,6 +45,7 @@ def update_dataset(ds, mhw_labels, clim):
     )
     return ds
 
+
 # Summary on MHW Events
 def print_mhw_summary(mhws):
 
@@ -61,7 +62,7 @@ def print_mhw_summary(mhws):
         print("-" * 40)
 
 
-# Plots
+# Plots of SST related
 
 def plot_sst_with_mhws(t, sst, mhws, clim, title="SST Time Series with Detected Marine Heatwaves"):
 
